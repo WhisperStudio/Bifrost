@@ -1,15 +1,19 @@
 // bifrost.js
 import React, { useState } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
+import { FaQuestionCircle, FaInfoCircle, FaGamepad, FaPhone } from 'react-icons/fa';
 
-// Animation for an elegant pop-up effect
+// Replace this with your custom image URL or import your image file
+const BUTTON_IMAGE = 'https://i.ibb.co/yFxWgc0s/AJxt1-KNy-Zw-Rvqjji1-Teum-EKW2-C4qw-Tpl-RTJVy-M5s-Zx-VCwbq-Ogpyhnpz-T44-QB9-RF51-XVUc1-Ci-Pf8-N0-Bp.png'
+
+// Elegant pop-up animation with bounce
 const popUp = keyframes`
   0% {
-    transform: scale(0);
+    transform: scale(0.3);
     opacity: 0;
   }
-  60% {
-    transform: scale(1.05);
+  70% {
+    transform: scale(1.1);
     opacity: 1;
   }
   100% {
@@ -18,49 +22,60 @@ const popUp = keyframes`
   }
 `;
 
-// Floating button in the bottom right corner
+// Blinking animation for the floating button when panel is closed
+const blink = keyframes`
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+`;
+
+// Floating button in bottom right corner with hover effect
 const FloatingButton = styled.button`
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background-color: #0056b3;
+  background: transparent;
   border: none;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  color: #fff;
-  font-size: 30px;
+  padding: 0;
   cursor: pointer;
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 1100;
   transition: transform 0.2s ease;
   &:hover {
     transform: scale(1.1);
   }
+  /* Blinking only when panel is closed */
+  ${props =>
+    !props.isOpen &&
+    css`
+      animation: ${blink} 1.5s infinite;
+    `}
+  img {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+  }
 `;
 
-// Ticket panel that pops up above the button
+// Ticket panel styled with calm, dark blue contrasts
 const TicketPanel = styled.div`
   position: fixed;
-  bottom: 100px; /* Positioned above the button */
+  bottom: 130px; /* Positioned above the button */
   right: 20px;
   width: 400px;
   max-width: 90%;
-  background: #ffffff;
+  background: #f0f4f8;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
   animation: ${popUp} 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   transform-origin: bottom right;
   z-index: 1200;
 `;
 
-// Header with gradient, fancy design, and "BIFROST" title
+// Header with dark blue gradient and "BIFROST" title
 const PanelHeader = styled.div`
-  background: linear-gradient(135deg, #0056b3, #007bff);
+  background: linear-gradient(135deg, #003366, #0055aa);
   padding: 15px 20px;
   display: flex;
   align-items: center;
@@ -75,7 +90,7 @@ const HeaderTitle = styled.h1`
   letter-spacing: 2px;
 `;
 
-// Close button in the header corner
+// Close button in header corner
 const CloseButton = styled.button`
   position: absolute;
   top: 10px;
@@ -87,10 +102,10 @@ const CloseButton = styled.button`
   cursor: pointer;
 `;
 
-// Panel body with light background
+// Panel body with very light blue background
 const PanelBody = styled.div`
   padding: 20px;
-  background: #f9f9f9;
+  background: #e2e8f0;
 `;
 
 // Shared styling for form fields
@@ -107,40 +122,40 @@ const Label = styled.label`
 
 const Input = styled.input`
   width: 100%;
-  padding: 12px 16px; /* Extra right-side padding */
-  border: 1px solid #ddd;
+  padding: 12px 16px;
+  border: 1px solid #a0aec0;
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.2s ease;
   &:focus {
-    border-color: #007bff;
+    border-color: #0055aa;
     outline: none;
   }
 `;
 
 const Select = styled.select`
   width: 100%;
-  padding: 12px 16px; /* Extra right-side padding */
-  border: 1px solid #ddd;
+  padding: 12px 16px;
+  border: 1px solid #a0aec0;
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.2s ease;
   &:focus {
-    border-color: #007bff;
+    border-color: #0055aa;
     outline: none;
   }
 `;
 
 const TextArea = styled.textarea`
   width: 100%;
-  padding: 12px 16px; /* Extra right-side padding */
-  border: 1px solid #ddd;
+  padding: 12px 16px;
+  border: 1px solid #a0aec0;
   border-radius: 8px;
   font-size: 1rem;
   resize: vertical;
   transition: border-color 0.2s ease;
   &:focus {
-    border-color: #007bff;
+    border-color: #0055aa;
     outline: none;
   }
 `;
@@ -148,7 +163,7 @@ const TextArea = styled.textarea`
 const SubmitButton = styled.button`
   width: 100%;
   padding: 14px;
-  background-color: #007bff;
+  background-color: #003366;
   border: none;
   border-radius: 8px;
   color: #fff;
@@ -156,38 +171,50 @@ const SubmitButton = styled.button`
   cursor: pointer;
   transition: background-color 0.3s ease;
   &:hover {
-    background-color: #0056b3;
+    background-color: #002244;
   }
 `;
 
 const NextButton = styled(SubmitButton)`
-  background-color: #28a745;
+  background-color: #0055aa;
   &:hover {
-    background-color: #218838;
+    background-color: #004488;
   }
 `;
 
-// Styled unordered list for game support links
+// Styled unordered list for Game Support links with icons
 const GameLinks = styled.ul`
-  margin: 10px 0;
+  margin: 10px 0 18px 0;
   padding-left: 20px;
 `;
 
 const GameLinkItem = styled.li`
-  margin-bottom: 5px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+`;
+
+const IconWrapper = styled.span`
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
 `;
 
 const LinkText = styled.a`
-  color: #007bff;
+  color: #003366;
   text-decoration: none;
   font-weight: 500;
+  transition: transform 0.2s ease;
   &:hover {
-    text-decoration: underline;
+    transform: scale(1.05);
   }
 `;
 
 const Bifrost = () => {
-  // Step 1: Choose category; Step 2: Complete the form
+  // isOpen: controls whether the panel is open or closed.
+  // step: 1 for category selection, 2 for form completion.
+  const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [ticket, setTicket] = useState({
     category: '',
@@ -196,14 +223,19 @@ const Bifrost = () => {
     message: '',
   });
 
-  const togglePanel = () => {
-    setStep(1);
+  const openPanel = () => {
     setTicket({
       category: '',
       email: '',
       name: '',
       message: '',
     });
+    setStep(1);
+    setIsOpen(true);
+  };
+
+  const closePanel = () => {
+    setIsOpen(false);
   };
 
   const handleChange = e => {
@@ -225,19 +257,20 @@ const Bifrost = () => {
     e.preventDefault();
     // Here you can send ticket data to backend/API for saving
     console.log('Ticket submitted:', ticket);
-    togglePanel();
+    closePanel();
   };
 
   return (
     <>
-      <FloatingButton onClick={togglePanel}>
-        {step > 1 ? '×' : '+'}
+      <FloatingButton onClick={isOpen ? closePanel : openPanel} isOpen={isOpen}>
+        {/* Replace the src with your chosen image */}
+        <img src={BUTTON_IMAGE} alt="Ticket Icon" />
       </FloatingButton>
-      {(step === 1 || step === 2) && (
+      {isOpen && (
         <TicketPanel>
           <PanelHeader>
             <HeaderTitle>BIFROST</HeaderTitle>
-            <CloseButton onClick={togglePanel}>×</CloseButton>
+            <CloseButton onClick={closePanel}>×</CloseButton>
           </PanelHeader>
           <PanelBody>
             {step === 1 && (
@@ -264,15 +297,27 @@ const Bifrost = () => {
                 {ticket.category === 'Games' && (
                   <GameLinks>
                     <GameLinkItem>
+                      <IconWrapper>
+                        <FaQuestionCircle color="#003366" />
+                      </IconWrapper>
                       <LinkText href="#help">Are you stuck?</LinkText>
                     </GameLinkItem>
                     <GameLinkItem>
+                      <IconWrapper>
+                        <FaInfoCircle color="#003366" />
+                      </IconWrapper>
                       <LinkText href="#faq">Check our FAQ</LinkText>
                     </GameLinkItem>
                     <GameLinkItem>
+                      <IconWrapper>
+                        <FaGamepad color="#003366" />
+                      </IconWrapper>
                       <LinkText href="#tips">Game Tips & Tricks</LinkText>
                     </GameLinkItem>
                     <GameLinkItem>
+                      <IconWrapper>
+                        <FaPhone color="#003366" />
+                      </IconWrapper>
                       <LinkText href="#support">Contact Game Support</LinkText>
                     </GameLinkItem>
                   </GameLinks>
